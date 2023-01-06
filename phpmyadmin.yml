@@ -1,64 +1,30 @@
 ---
 - hosts: webservers
   tasks:
-  - name: installing MySQL server on server
-    apt: pkg={{item}} update_cache=yes cache_valid_time=86400 state=present
-    with_items:
-    - python-mysqldb
-    - mysql-server
 
-
-
-
-
-  - name: Start mysql service
-    service: name=mysql state=started
-
-
-
-
-
-  - name: configuring root user pass and priveliges
-    mysql_user: name=root host=phpmyadmin password=Juut1337 priv=*.*:ALL,GRANT
-    with_items:
-    - "{{ inventory_hostname }}"
-    - 127.0.0.1
-    - ::1
-    - localhost
-    
-    
-  - name: debconf for pma
-    debconf: name=phpmyadmin question='phpmyadmin/dbconfig-install' value='true$
-
-
-
+  - name: php moodulite installeerimine
+    command: apt install php php-cgi php-mysqli php-pear php-mbstring php-gettext libapache2-mod-php php-common php-phpseclib php-mysql$
 
   - name: debconf for pma
-    debconf: name=phpmyadmin question='phpmyadmin/app-password-confirm' value='$
-
-
-
-
+    debconf: name=phpmyadmin question='phpmyadmin/dbconfig-install' value='true' vtype='boolean'
 
   - name: debconf for pma
-    debconf: name=phpmyadmin question='phpmyadmin/mysql/admin-pass' value='Juut$
-
-
-
-
+    debconf: name=phpmyadmin question='phpmyadmin/app-password-confirm' value='qwerty' vtype='password'
 
   - name: debconf for pma
-    debconf: name=phpmyadmin question='phpmyadmin/mysql/app-pass' value='Juut13$
-
-
-
-
+    debconf: name=phpmyadmin question='phpmyadmin/mysql/admin-pass' value='qwerty' vtype='password'
 
   - name: debconf for pma
-    debconf: name=phpmyadmin question='phpmyadmin/reconfigure-webserver' value=$
+    debconf: name=phpmyadmin question='phpmyadmin/mysql/app-pass' value='qwerty' vtype='password'
 
+  - name: debconf for pma
+    debconf: name=phpmyadmin question='phpmyadmin/reconfigure-webserver' value='' vtype='multiselect'
 
+  - name: install pma
+    unarchive:
+     src: https://www.phpmyadmin.net/downloads/phpMyAdmin-latest-all-languages.tar.gz
+     dest: /var/www/html/
+     remote_src: yes
 
-
-  - name: installid
-    command: apt install php php-cgi php-mysqli php-pear php-mbstring php-gette$
+  - name: confi faili kopeerimine
+    command: cp /var/www/html/phpmyadmin/config.sample.inc.php /var/www/html/phpmyadmin/config.inc.php
